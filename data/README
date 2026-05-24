@@ -1,0 +1,2 @@
+This directory stores JSON fallback data when PostgreSQL is not configured.
+Files in this directory are auto-generated at runtime and excluded from git.
