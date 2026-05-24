@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: protrader
+      POSTGRES_USER: protrader
+      POSTGRES_PASSWORD: protrader123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U protrader"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      DATABASE_URL: postgresql://protrader:protrader123@db:5432/protrader
+      ANGEL_API_KEY: ${ANGEL_API_KEY:-}
+      ANGEL_CLIENT_ID: ${ANGEL_CLIENT_ID:-}
+      ANGEL_PASSWORD: ${ANGEL_PASSWORD:-}
+      ANGEL_TOTP_SECRET: ${ANGEL_TOTP_SECRET:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SMTP_EMAIL: ${SMTP_EMAIL:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      WHATSAPP_TOKEN: ${WHATSAPP_TOKEN:-}
+      WHATSAPP_PHONE_ID: ${WHATSAPP_PHONE_ID:-}
+      ADMIN_PIN: ${ADMIN_PIN:-123456}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - appdata:/app/data
+
+volumes:
+  pgdata:
+  appdata:
